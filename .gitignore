@@ -1,0 +1,45 @@
+# Bytecode e caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+ENV/
+
+# Distribuição / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Segredos e env local
+.env
+.env.*
+!.env.example
+
+# Editores / SO
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs e dumps locais
+*.log
+ffmpeg_download.zip
+ffmpeg_download.tar.xz
+
+# Cursor (local)
+.cursor/

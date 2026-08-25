@@ -1,0 +1,4 @@
+# Dependências base da GUI e do bootstrap (PyTorch e WhisperX são instalados pelo setup).
+customtkinter>=5.2.0
+tkinterdnd2>=0.3.0
+requests>=2.31.0
