@@ -65,6 +65,8 @@ def is_cache_miss(exc: BaseException) -> bool:
         return False
     if "gatedrepo" in name or "gated repo" in text:
         return False
+    if "dll load failed" in text or "controle de aplicativo" in text:
+        return False
     markers = (
         "offline",
         "local_files_only",
@@ -100,6 +102,8 @@ def load_with_cache_first(
     except Exception as exc:
         if not is_cache_miss(exc):
             if "outofmemory" in type(exc).__name__.lower() or "out of memory" in str(exc).lower():
+                raise
+            if "dll load failed" in str(exc).lower() or "controle de aplicativo" in str(exc).lower():
                 raise
             log(f"{label}: cache local falhou ({exc}). Tentando Hugging Face…")
         else:

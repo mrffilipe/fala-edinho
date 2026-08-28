@@ -170,6 +170,7 @@ O WhisperX **não** é vendored: depois do setup, o `import whisperx` usa o paco
 | Diarização 403 / gated | Token da **mesma** conta que aceitou o Pyannote; permissão Read |
 | Diarização cinza na GUI | Cole o token HF primeiro; locutores só habilitam com token |
 | Transcrição “muda” no ShadowPlay | Ligue misturar faixas (duas primeiras = sistema + microfone) |
+| `DLL load failed` / Controle de Aplicativo | O Windows (Smart App Control) bloqueou o PyAV. O FalaEdinho usa FFmpeg no lugar — feche o app e abra de novo. Se outra DLL (SciPy etc.) ainda for bloqueada: Configurações → Segurança do Windows → Controle de aplicativos e do navegador → Smart App Control → **Desativado** (exige reinício). |
 | HTTP HEAD no log / timeout sem rede | Modelos precisam estar no cache; o app tenta offline primeiro |
 | Python 3.14 e WhisperX recusa instalar | O setup usa `--ignore-requires-python`; o mais estável continua sendo 3.12 |
 

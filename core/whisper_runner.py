@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from utils.events import Event
+from core.av_compat import AppControlBlockedError, is_app_control_block, warmup_whisperx_imports
 from core.hf_offline import load_with_cache_first
 
 # Estágios exatamente como na especificação (exibidos na barra de progresso).
@@ -211,6 +212,7 @@ def _run_jobs_inner(
     options: JobOptions,
     q: queue.Queue[Event],
 ) -> list[str]:
+    av_mode = warmup_whisperx_imports()
     import whisperx  # type: ignore
 
     from core.audio import load_audio_for_whisper
@@ -223,6 +225,15 @@ def _run_jobs_inner(
 
     _emit(q, kind="stage", stage=STAGE_LOAD, progress=0.02, message=STAGE_LOAD)
     _emit(q, kind="log", message=f"Carregando modelo {options.model} em {device} ({compute_type})…")
+    if av_mode == "ffmpeg":
+        _emit(
+            q,
+            kind="log",
+            message=(
+                "Windows bloqueou as DLLs do PyAV (Controle de Aplicativo / Smart App Control). "
+                "Usando o FFmpeg local para o áudio; a transcrição segue normalmente."
+            ),
+        )
     _emit(
         q,
         kind="log",
@@ -527,6 +538,18 @@ def _friendly_error(exc: BaseException) -> str:
         return (
             "Erro de VRAM (CUDA Out of Memory). "
             "Reduza o batch_size, troque o compute type para int8 ou use um modelo menor."
+        )
+    if isinstance(exc, AppControlBlockedError) or is_app_control_block(exc):
+        if isinstance(exc, AppControlBlockedError):
+            return str(exc)
+        return (
+            "O Windows Smart App Control está bloqueando DLLs do Python usadas pelo WhisperX "
+            "(PyAV, SciPy, etc.). Isso não é falha do modelo nem da Hugging Face.\n\n"
+            "Como resolver (uma vez):\n"
+            "1. Configurações → Privacidade e segurança → Segurança do Windows\n"
+            "2. Controle de aplicativos e do navegador → Smart App Control\n"
+            "3. Desativado\n"
+            "4. Reinicie o Windows e abra o FalaEdinho de novo."
         )
     if _is_gated_hf_error(exc):
         return DIARIZE_GATED_HELP
