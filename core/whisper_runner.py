@@ -528,9 +528,39 @@ def _export(
         selected = ["srt"]
 
     for fmt in selected:
-        writer = get_writer(fmt, output_dir)
-        writer(result, audio_path, WRITER_OPTIONS)
+        if fmt == "txt":
+            _write_txt_with_timestamps(result, audio_path, output_dir)
+        else:
+            writer = get_writer(fmt, output_dir)
+            writer(result, audio_path, WRITER_OPTIONS)
         _emit(q, kind="log", message=f"Exportado .{fmt} → {output_dir}")
+
+
+def _format_segment_ts(seconds: float | None) -> str:
+    total = max(0, int(round(float(seconds or 0))))
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+
+def _write_txt_with_timestamps(result: dict[str, Any], audio_path: str, output_dir: str) -> None:
+    """TXT por fala: [início - fim] e locutor, para colar em um chat e pedir pontos-chave."""
+    stem = Path(audio_path).stem
+    output_path = Path(output_dir) / f"{stem}.txt"
+    lines: list[str] = []
+    for segment in result.get("segments") or []:
+        text = str(segment.get("text") or "").strip()
+        if not text:
+            continue
+        start = _format_segment_ts(segment.get("start"))
+        end = _format_segment_ts(segment.get("end") if segment.get("end") is not None else segment.get("start"))
+        speaker = segment.get("speaker")
+        stamp = f"[{start} - {end}]"
+        if speaker:
+            lines.append(f"{stamp} [{speaker}]: {text}")
+        else:
+            lines.append(f"{stamp} {text}")
+    output_path.write_text(("\n".join(lines) + ("\n" if lines else "")), encoding="utf-8")
 
 
 def _friendly_error(exc: BaseException) -> str:

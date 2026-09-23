@@ -106,7 +106,7 @@ PARAM_HELP = {
     "formats": (
         "Pode marcar vários.\n"
         "• .srt / .vtt: legendas\n"
-        "• .txt: texto corrido\n"
+        "• .txt: cada fala com horário [início - fim]\n"
         "• .json / .tsv: dados para outros programas"
     ),
 }
